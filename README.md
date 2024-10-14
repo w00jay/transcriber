@@ -74,6 +74,7 @@ python send-streaming-voice.py
 
 ## System Architecture
 
+```
 [Client Machine]                 [GPU Server]
 +------------------+             +------------------+
 |                  |             |                  |
@@ -90,7 +91,7 @@ python send-streaming-voice.py
 | Display          |Transcription|      |           |
 | Transcription    |             |      |           |
 +------------------+             +------------------+
-
+```
 
 ## Implementation Details
 
