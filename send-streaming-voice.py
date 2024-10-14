@@ -1,15 +1,19 @@
+import asyncio
 import io
 import os
 import uuid
 import wave
 
+import aiohttp
 import pyaudio
-import requests
+
+# import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
 TRANSCRIPTION_URL = os.getenv("TRANSCRIPTION_URL")
+sequence_id = 0
 
 
 class AudioStreamer:
@@ -22,6 +26,8 @@ class AudioStreamer:
         self.p = pyaudio.PyAudio()
 
     def stream_audio(self):
+        # print("Starting audio stream...")
+
         stream = self.p.open(
             format=self.audio_format,
             channels=self.channels,
@@ -30,7 +36,7 @@ class AudioStreamer:
             frames_per_buffer=self.chunk_size,
         )
 
-        print("Streaming audio...")
+        # print("Streaming audio...")
         while True:
             frames = []
             for _ in range(
@@ -47,6 +53,8 @@ class AudioStreamer:
 
 
 def save_wav(audio_data, sample_rate=16000, channels=1):
+    # print("Saving WAV...")
+
     buffer = io.BytesIO()
     with wave.open(buffer, "wb") as wf:
         wf.setnchannels(channels)
@@ -56,38 +64,60 @@ def save_wav(audio_data, sample_rate=16000, channels=1):
     return buffer.getvalue()
 
 
-def send_audio_for_transcription(audio_data, endpoint_url):
+async def send_audio_for_transcription(audio_data, endpoint_url):
+    # print(f"Sending request to {endpoint_url}")
+
+    global sequence_id
     wav_data = save_wav(audio_data)
-    files = {"file": ("audio.wav", wav_data, "audio/wav")}
+    filename = f"audio_{sequence_id:04d}.wav"
+    sequence_id += 1
 
-    # Save the WAV file
-    filename = f"audio_{uuid.uuid4()}.wav"
-    with open(filename, "wb") as f:
-        f.write(wav_data)
-        f.close()
+    # # Save the WAV file
+    # filename = f"audio_{uuid.uuid4()}.wav"
+    # with open(filename, "wb") as f:
+    #     f.write(wav_data)
+    #     f.close()
 
-    try:
-        response = requests.post(endpoint_url, files=files)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        print(f"Error sending request: {e}")
-        return None
+    async with aiohttp.ClientSession() as session:
+        data = aiohttp.FormData()
+        data.add_field("file", wav_data, filename=filename, content_type="audio/wav")
+
+        try:
+            async with session.post(endpoint_url, data=data) as response:
+                response.raise_for_status()
+                result = await response.json()
+                result["sequence_id"] = sequence_id
+            return result
+        except aiohttp.ClientError as e:
+            print(f"Error sending request: {e}")
+            return None
 
 
-def main():
-    streamer = AudioStreamer()
-
-    try:
-        for audio_chunk in streamer.stream_audio():
-            result = send_audio_for_transcription(audio_chunk, TRANSCRIPTION_URL)
+async def process_audio_stream(streamer, endpoint_url):
+    for audio_chunk in streamer.stream_audio():
+        task = asyncio.create_task(
+            send_audio_for_transcription(audio_chunk, endpoint_url)
+        )
+        try:
+            result = await asyncio.wait_for(task, timeout=5.0)  # 5 second timeout
             if result:
                 print(
-                    "Transcription:",
-                    result.get("transcription", "No transcription available"),
+                    f"Sequence: {result['sequence_id']}, Transcription: {result.get('transcription', 'No transcription available')}"
                 )
             else:
                 print("Failed to get transcription")
+        except asyncio.TimeoutError:
+            print("Transcription request timed out")
+        except Exception as e:
+            print(f"Error processing transcription: {e}")
+
+
+async def main():
+    endpoint_url = os.getenv("TRANSCRIPTION_URL", "http://localhost:8000/transcribe")
+    streamer = AudioStreamer()
+
+    try:
+        await process_audio_stream(streamer, endpoint_url)
     except KeyboardInterrupt:
         print("Stopping audio stream...")
     finally:
@@ -95,4 +125,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
