@@ -1,0 +1,18 @@
+repos:
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.3.5
+    hooks:
+
+        # Run the linter.
+    -   id: ruff
+        description: "Run 'ruff' for extremely fast Python linting"
+        entry: ruff check --force-exclude
+        language: python
+        types_or: [ python, pyi, jupyter ]
+        args: [ --fix, --select, I]
+        require_serial: true
+        minimum_pre_commit_version: "2.9.2"
+
+    -   id: ruff-format
+        types_or: [ python, pyi, jupyter ]
