@@ -75,14 +75,14 @@ async def send_audio_for_transcription(audio_data, endpoint_url, seq_id):
     try:
         timeout = aiohttp.ClientTimeout(total=30)
         async with aiohttp.ClientSession(timeout=timeout) as session:
-            logging.DEBUG(f"Sending chunk {seq_id}...")
+            logging.debug(f"Sending chunk {seq_id}...")
 
             async with session.post(endpoint_url, data=data) as response:
-                logging.DEBUG(f"Received status {response.status} for chunk {seq_id}")
+                logging.debug(f"Received status {response.status} for chunk {seq_id}")
                 response.raise_for_status()
                 result = await response.json()
 
-                logging.DEBUG(f"Result: {seq_id}: {result}")
+                logging.debug(f"Result: {seq_id}: {result}")
                 return result
     except aiohttp.ClientError as e:
         print(f"Error sending chunk {seq_id}: {e}")
@@ -92,7 +92,7 @@ async def send_audio_for_transcription(audio_data, endpoint_url, seq_id):
 async def audio_producer(queue, streamer):
     try:
         async for audio_chunk in streamer.stream_audio():
-            logging.DEBUG("Adding audio chunk to queue...")
+            logging.debug("Adding audio chunk to queue...")
             await queue.put(audio_chunk)
             await asyncio.sleep(0)  # Yield control to allow other tasks to run
     except Exception as e:
@@ -105,16 +105,16 @@ async def audio_consumer(queue, endpoint_url):
     global sequence_id
 
     while True:
-        logging.DEBUG("Waiting to get audio chunk from queue...")
+        logging.debug("Waiting to get audio chunk from queue...")
         audio_chunk = await queue.get()
         if audio_chunk is None:
-            logging.DEBUG("Received sentinel. Exiting consumer.")
+            logging.debug("Received sentinel. Exiting consumer.")
             break
 
         seq_id = sequence_id
         sequence_id += 1
 
-        logging.DEBUG(f"Processing chunk {seq_id}...")
+        logging.debug(f"Processing chunk {seq_id}...")
         try:
             result = await send_audio_for_transcription(
                 audio_chunk, endpoint_url, seq_id
@@ -133,10 +133,10 @@ async def main():
     streamer = AudioStreamer()
     queue = asyncio.Queue()
 
-    logging.DEBUG("Starting producer and consumer tasks...")
+    logging.debug("Starting producer and consumer tasks...")
     producer_task = asyncio.create_task(audio_producer(queue, streamer))
     consumer_task = asyncio.create_task(audio_consumer(queue, TRANSCRIPTION_URL))
-    logging.Info("Started transcription tasks...")
+    logging.info("Started transcription tasks...")
 
     await asyncio.gather(producer_task, consumer_task)
 
