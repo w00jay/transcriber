@@ -5,6 +5,7 @@ import os
 import wave
 
 import aiohttp
+import numpy as np
 import pyaudio
 from dotenv import load_dotenv
 
@@ -19,13 +20,28 @@ sequence_id = 0
 
 
 class AudioStreamer:
-    def __init__(self, chunk_size=1024, sample_rate=16000, buffer_duration=10):
+    def __init__(
+        self,
+        chunk_size=1024,
+        sample_rate=16000,
+        max_buffer_duration=10,
+        silence_threshold=500,
+        silence_duration=0.5,
+        min_audio_length=0.6,
+    ):
         self.chunk_size = chunk_size
         self.sample_rate = sample_rate
-        self.buffer_duration = buffer_duration  # seconds per chunk
+        self.max_buffer_duration = max_buffer_duration  # maximum seconds per chunk
         self.audio_format = pyaudio.paInt16
         self.channels = 1
         self.p = pyaudio.PyAudio()
+        self.silence_threshold = silence_threshold
+        self.silence_duration = silence_duration
+        self.silence_frames = int(silence_duration * sample_rate / chunk_size)
+        self.min_audio_length = (
+            min_audio_length  # minimum length of audio to be considered meaningful
+        )
+        self.min_audio_frames = int(min_audio_length * sample_rate / chunk_size)
 
     async def stream_audio(self):
         stream = self.p.open(
@@ -38,15 +54,43 @@ class AudioStreamer:
         try:
             while True:
                 frames = []
-                for _ in range(
-                    int(self.sample_rate / self.chunk_size * self.buffer_duration)
-                ):
+                silent_frames = 0
+                meaningful_frames = 0
+                max_frames = int(
+                    self.sample_rate / self.chunk_size * self.max_buffer_duration
+                )
+
+                for _ in range(max_frames):
                     data = stream.read(self.chunk_size, exception_on_overflow=False)
                     frames.append(data)
-                    await asyncio.sleep(0)  # Allow other tasks to run
 
-                audio_data = b"".join(frames)
-                yield audio_data  # Generate an audio chunk
+                    # Check for silence
+                    audio_data = np.frombuffer(data, dtype=np.int16)
+                    if np.abs(audio_data).mean() < self.silence_threshold:
+                        silent_frames += 1
+                    else:
+                        silent_frames = 0
+                        meaningful_frames += 1
+
+                    if (
+                        silent_frames >= self.silence_frames
+                        and len(frames) > self.silence_frames
+                    ):
+                        # Remove the silent frames from the end
+                        frames = frames[: -self.silence_frames]
+                        break
+
+                    await asyncio.sleep(0)  # Yield control to allow other tasks to run
+
+                # Check if the audio chunk contains enough meaningful data
+                if meaningful_frames >= self.min_audio_frames:
+                    audio_data = b"".join(frames)
+                    yield audio_data  # Produce audio chunk
+                else:
+                    logging.debug(
+                        "Skipping short audio burst with insufficient meaningful data"
+                    )
+
         finally:
             stream.stop_stream()
             stream.close()
