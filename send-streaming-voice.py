@@ -82,14 +82,14 @@ class AudioStreamer:
 
                     await asyncio.sleep(0)  # Yield control to allow other tasks to run
 
-                # Check if the audio chunk contains enough meaningful data
+                # Generate audio chunk if the audio chunk contains enough meaningful data
                 if meaningful_frames >= self.min_audio_frames:
                     audio_data = b"".join(frames)
-                    yield audio_data  # Produce audio chunk
-                else:
-                    logging.debug(
-                        "Skipping short audio burst with insufficient meaningful data"
-                    )
+                    yield audio_data
+                # else:
+                #     logging.debug(
+                #         "Skipping short audio burst with insufficient meaningful data"
+                #     )
 
         finally:
             stream.stop_stream()
@@ -117,7 +117,7 @@ async def send_audio_for_transcription(audio_data, endpoint_url, seq_id):
     data.add_field("file", wav_data, filename=filename, content_type="audio/wav")
 
     try:
-        timeout = aiohttp.ClientTimeout(total=30)
+        timeout = aiohttp.ClientTimeout(total=20)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             logging.debug(f"Sending chunk {seq_id}...")
 
