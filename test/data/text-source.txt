@@ -1,0 +1,9 @@
+One of the successes of deep learning has been speech recognition. 
+Deep learning has made speech recognition much more accurate than maybe a decade ago. And this is allowing many of us to use speech recognition in our smart speakers
+on our smartphones for voice search and in other context. You may have heard occasionally about the research work that goes into building better speech models. But what else is needed to actually build a
+valuable production deployment speech recognition system. Let's use the machine learning project life cycle to set through a speech recognition example so you can understand all the steps needed to actually build and deploy such a system. 
+I've worked on speech recognition systems in a commercial context before and so the first step of that was scoping have to first define the project and just make a decision to work on speech recognition, say for voice search 
+as part of defining the project. That also encourage you to try to estimate or maybe at least guesstimate the key metrics. This will be very problem dependent. Almost every application will have its own unique set of
+goals and metrics. In the case of speech recognition, some things I cared about were: How accurate is the speech system?
+What's the latency? How long does the system take
+to transcribe speech? and what is the throughput? How many queries per second can we handle?
