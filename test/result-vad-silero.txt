@@ -1,0 +1,36 @@
+    ~/P/ML/transcriber    main *1 +1 !1 ?12  python text-diff.py test/data/text-source.txt test/data/text-transcribed-silero.txt                          1 ✘    ▼  python-3.12  
+[nltk_data] Downloading package punkt_tab to /home/woojay/nltk_data...
+[nltk_data]   Package punkt_tab is already up-to-date!
+===== Text similarty results =====
+String Similarity: 0.03
+Token Similarity: 0.13
+Semantic Similarity: 0.88
+The texts are not similar.
+===== Cosine similarty results =====
+Cosine Similarity: 0.7447
+Score: 0.74 - Highly similar
+WER: 6.63
+Levenshtein Distance: 8940
+CER: 6.458815028901734
+BLEU Score: 0.08
+ROUGE Score: {
+    "rouge1": [
+        0.12906784335355764,
+        0.9790794979079498,
+        0.22807017543859645
+    ],
+    "rouge2": [
+        0.1098233995584989,
+        0.8361344537815126,
+        0.19414634146341464
+    ],
+    "rougeL": [
+        0.10865968008825151,
+        0.8242677824267782,
+        0.19200779727095513
+    ]
+}
+Precision: 0.12, Recall: 0.92
+Resource Allocation Similarity: 112.3594
+Partial Ratio: 0.0506
+Token Sort Ratio: 0.0133

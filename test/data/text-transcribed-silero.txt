@@ -1,0 +1,134 @@
+Some of the successes of deep learning have.
+That's been speech recognition.
+Deep learning has made speech recognition much more accurate.
+And, you know,
+This is allowing many of us to use speech recognition in the world.
+Spot speakers.
+Uh, on our smartphone.
+But voice version in other contexts.
+You may have heard.
+Occasionally about the research work that goes into building better speech.
+But what else is needed to add?
+Should he build a valuable pri
+Deduction deployment, speech record.
+Let's use the machine learning project life cycle to step through a speech recognition example.
+You can understand all the steps needed.
+She's built at the floor.
+Like such a.
+speech recognition systems in a commercial context before.
+And so the first step of that was scoping.
+to first define their project.
+Just make a decision to work on speech recognition, say for.
+Voice such as hard.
+The defining the person.
+I'd also encourage you to try to estimate.
+Or maybe at least guess the metrics.
+This will be very problem dependent. Almost every application will have its own unique set of goals and metrics.
+In the case of speech recognition, some things I cared about were how actually.
+This is a speech system. What is the latency? How long does the system take to transcribe speech? And what is the throughput? How many queries per second can we handle?
+And then if possible,
+You might.
+I also try to estimate the resources needed, so how much time, how much compute, how much budget, as well as timeline, how long would it take to carry out this project?
+Lot more to say on scoping in week three.
+Of this course. So we come back to this topic.
+And describe this in greater detail as well.
+The next step is the data stage where you have to define the data and establish a baseline and also label and organize the data.
+What's hot about this?
+One of the challenges of practical speech recognition systems is is the data labeled consistently.
+Here's an audio clip of a fairly typical recording you might get if you're working on speech recognition for voice search. Let me play this audio clipUm, today's webinar."]
+And the question is, given this audio clip that you just heard, would you want to transcribe it like that, which if you have transcription that's labeled thdata, this will be a perfectly reasonable transcription, or would you want to transcribe it like that, which is also a completely reasonable transcription?"]
+Or should the transcription is?
+Say, well, there's often a lot of noise and order.
+Oh, you know, made this up.
+Sound of a.
+If something fell down.
+And you don't want to transcribe noise, so maybe it's just noise and you should transcribe it like that. It turns out that any of these three ways otranscribing the audio is just fine. I would probably prefer either the first or the second, not the third, but what would hurt your learning algorithm's performance is if one third of the transcription is used the first, one third the second, and one third the third way of transcribing, because then your data is inconsistent and confusing for the learning algorithm. Because how is the learning algorithm supposed to get?"]
+Which one of these conventions, a specific transcriptionist, happened to use for an audio clip. So spotting, correcting inconsistencies like that.
+Maybe just asking everyone to standardize on this first convention that can have a significant impact on your learning algorithms performance. So we'lcome back."]
+Later in this course, to dive into some best practices for how to spot inconsistencies and how to address them. Other examples of
+Data definition questions. For an audio clip like today's weather, how much silence do you want before and after each clip?
+After a speaker has stopped speaking, do you want to include another one hundred milliseconds of silence after that, or a few hundred milliseconds, or five hundred milliseconds, just half a second?
+Or how do you perform volume normalization? Some speakers speak loudly, some are less loud, and then there's actually a tricky case if you have a singlaudio clip with some really loud volume and some really soft volume all within the same audio clip. So how do you perform volume normalization?"]
+It's like all of these are.
+Data definition questions. A lot of progress in machine learning, that is a lot of machine learning research was driven by researchers working to improve.
+performance on benchmark data sets.
+In that model, researchers might download the data set and just work on that fixed data set.
+And this mindset has led to tremendous progress in machine learning. So no complaints at all about this mindset. But if you are working on the systemthen you don't have to keep the Devices. It's a case of the year. I often edit the training set. If you want to look at it, you just must leave it in order to improve."]
+data quality to get a production system to work better. So what are practical ways to do this effectively?
+Nothing at all.
+With the systematic frameworks for making sure you have high quality data.
+You learn more about this later in this course.
+After you've collected your data set, the next step is modeling.
+In which you have to select and train a model.
+And go for it.
+Full error analysis.
+There's three key inputs.
+that go into creating a machine learning model are the code that is the output.
+Okay, that's on.
+The newer network model offers.
+That you might use. You also have to pick hyperframe.
+And then there's the genes.
+So and
+Running the code with your hyperparameters on your data gives you the machine learning model.
+The celebrator machine learning model.
+So.
+Learning from, say, audio clips.
+To text transcripts.
+I find that in a lot of research work or experiments.
+Academic work, you tend to hold the data fixed.
+And vary the code and maybe vary the hyper parameters in order to try to get good performance.
+In contrast.
+I found that for a lot of product teams, if your main goal is to just build and deploy a working valuable machine learning system, I found that it can be even more effective to hold the code fixed and to instead focus on optimizing the data and maybe the hyper parameters in order to get a high value.
+Like performing vlogo.
+A machine learning system includes both code.
+And data.
+But they're maybe a bit easier to optimize than the code or data. And I found that rather than taking a model centric view of trying to optimize the code tyour fixed data set."]
+For many problems, you can.
+Use an open source implementation of something that you download off GitHub.
+Instead, just focus on optimizing the data. So during modeling, you have to select and train some model architecture, maybe some newer network architecture. Error analysis can then tell you where your model still falls short.
+And.
+If you can use that error analysis to tell you how to systematically improve your data, maybe improve the code too. That's okay.
+But often, if air analysis can tell you how to systematically improve the data, that can be a very efficient way for you to get to a high accuracmodel. And part of the trick is you don't want to just feel like you need to collect more data."]
+More data all the time because we could always use more data, but rather than just trying to collect more data.
+If error analysis can help you be more.
+Sounds good.
+Exactly what data to collect.
+You'd be much more efficient in.
+Building.
+That's model.
+Fire.
+Then you have trained the model.
+With her now.
+This seems to suggest it's working well enough.
+Ready to go into deployment.
+speech recognition.
+This is how you might deploy.
+speech system. you have a
+Mobile phone, this would be an edge device.
+With software running.
+On your phone, that software attacks.
+Pops into the microphone to record what someone is saying, maybe for a voice search. And in a typical implementation of speech recognition,
+You would use a V eighty module.
+View these dance club voice activity detection.
+It is usually a relatively simple algorithm.
+Maybe a learning algorithm. And the job of the VAT allows the smartphone to select out just.
+with you.
+It contains hope.
+Hopefully someone's speaking so that you can send only that audio clip to your prediction server.
+And in this case, maybe the prediction server lives in the cloud. This will be a common deployment pattern.
+Server.
+returns, but
+The transcript so the user, so you can see.
+What the system thinks you said, and it also returns the search results if you're doing voice search, and the transcript and search results are thedisplayed in the front end code running on your mobile phone."]
+So implementing this type of system would be the work needed to deploy.
+A speech model in production.
+And after it's running though.
+We still have to monitor and maintain the system.
+So here's something that happened to me once. My team had built a speech recognition system and it was trained mainly on adult voices.
+We pushed it to production, ran into production, and we found that over time, more and more young individuals, teenagers, sometimes even younger, seemed tbe using our speech recognition system. And the voices of very young individuals just sound different. And so my speech system's performance started to degrade. We just were not that good at recognizing speech as spoken by younger voices."]
+And so we had to go back and find a way, collect more data, other things in order to fix it. So one of the key challenges when it comes to deployment is concept drift.
+Okay.
+Or data drift.
+Which is what happens when the data distribution changes, such as there are more and more young voices being fed to the speech recognition system. And knowing how to put in place appropriate monitors to spot such problems, and then also how to fix them in a timely way, is a key skill needed to make sure your production deployment creates the value you hope it will.
+To recap, in this video, you saw the full life cycle of a machine learning project using speech recognition as a running example. So from scoping to data, to modeling, to deployment.
+Next, I want to briefly share with you the major concepts and sequencing you learned about in this course, so come with me to the next video.
