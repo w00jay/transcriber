@@ -32,7 +32,7 @@ python server-transcribe.py
 ```
 
 
-## Client: send-streaming-voice.py
+## Client: send-streaming-voice(-silero).py
 
 ### Requirements
 - Python 3.7+
@@ -61,6 +61,11 @@ Replace `your-server-ip` with the IP address or hostname of your GPU server.
 python send-streaming-voice.py
 ```
 
+### Evaluation
+
+```
+python text-diff.py test/data/text-source.txt test/data/text-transcribed(-silero).txt
+```
 
 ## Usage
 
